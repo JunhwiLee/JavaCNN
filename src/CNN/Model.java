@@ -5,8 +5,14 @@ package CNN;
  */
 public interface Model {
 	
-	/**
-     * Applies the loss function to the supplied value.
+    /**
+     * Computes the loss between the predicted values and the expected
+     * values. Implementations may calculate different loss metrics
+     * (e.g. mean squared error or cross entropy).
+     *
+     * @param predicted values predicted by the network
+     * @param target    the ground truth values
+     * @return computed loss
      */
-	public double lossFunc();
+    double lossFunc(double[] predicted, double[] target);
 }
