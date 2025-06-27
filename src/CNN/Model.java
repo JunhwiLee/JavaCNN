@@ -4,7 +4,6 @@ package CNN;
  * Simple interface for model used in the neural network.
  */
 public interface Model {
-	
     /**
      * Computes the loss between the predicted values and the expected
      * values. Implementations may calculate different loss metrics
@@ -14,5 +13,5 @@ public interface Model {
      * @param target    the ground truth values
      * @return computed loss
      */
-    double lossFunc(double[] predicted, double[] target);
+    public double lossFunc(double[] predicted, double[] target);
 }
