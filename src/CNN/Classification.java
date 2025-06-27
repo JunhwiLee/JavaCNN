@@ -1,7 +1,17 @@
 package CNN;
 
 public class Classification implements Model {
-
+	
+	private final Layer[] hiddenLayer;
+	private final Layer outputLayer;
+	private final ActivationFunc activation;
+	
+	public Classification(int inputSize, int hiddenLayerCount, int[] hiddenLayerSizes, int outputLayerSize, ActivationFunc activation) {
+		this.activation = activation;
+		hiddenLayer = new Layer[hiddenLayerCount];
+		outputLayer = new Layer(hiddenLayerSizes[hiddenLayerCount - 1], outputLayerSize, activationFunc);
+	}
+	
     /**
      * Applies the softmax function to the given logits.
      *
@@ -32,7 +42,7 @@ public class Classification implements Model {
      * Computes cross entropy between a predicted probability distribution and
      * the target distribution.
      */
-    private static double crossEntropy(double[] probs, double[] target) {
+    private double crossEntropy(double[] probs, double[] target) {
         double ce = 0.0;
         for (int i = 0; i < probs.length; i++) {
             double p = Math.max(Math.min(probs[i], 1.0 - 1e-15), 1e-15);
@@ -45,7 +55,7 @@ public class Classification implements Model {
      * Computes the Kullback–Leibler divergence between two probability
      * distributions.
      */
-    private static double klDivergence(double[] probs, double[] target) {
+    private double klDivergence(double[] probs, double[] target) {
         double kl = 0.0;
         for (int i = 0; i < probs.length; i++) {
             double t = Math.max(Math.min(target[i], 1.0 - 1e-15), 1e-15);
