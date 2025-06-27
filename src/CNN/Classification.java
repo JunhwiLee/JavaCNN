@@ -6,11 +6,16 @@ public class Classification implements Model {
 	private final Layer outputLayer;
 	private final ActivationFunc activation;
 	
-	public Classification(int inputSize, int hiddenLayerCount, int[] hiddenLayerSizes, int outputLayerSize, ActivationFunc activation) {
-		this.activation = activation;
-		hiddenLayer = new Layer[hiddenLayerCount];
-		outputLayer = new Layer(hiddenLayerSizes[hiddenLayerCount - 1], outputLayerSize, activationFunc);
-	}
+        public Classification(int inputSize, int hiddenLayerCount, int[] hiddenLayerSizes, int outputLayerSize, ActivationFunc activation) {
+                this.activation = activation;
+                hiddenLayer = new Layer[hiddenLayerCount];
+                int prevSize = inputSize;
+                for (int i = 0; i < hiddenLayerCount; i++) {
+                        hiddenLayer[i] = new Layer(prevSize, hiddenLayerSizes[i], activation);
+                        prevSize = hiddenLayerSizes[i];
+                }
+                outputLayer = new Layer(prevSize, outputLayerSize, activation);
+        }
 	
     /**
      * Applies the softmax function to the given logits.
