@@ -32,6 +32,9 @@ public class Node {
      * and stores it for use during backpropagation.
      */
     public double forward(double[] input) {
+        if (input.length != weights.length) {
+            throw new InputSizeMissmatchException(weights.length, input.length);
+        }
         double sum = bias;
         for (int i = 0; i < weights.length; i++) {
             sum += weights[i] * input[i];
@@ -48,6 +51,9 @@ public class Node {
      * @param learningRate step size for gradient descent
      */
     public void backward(double[] input, double delta, double learningRate) {
+        if (input.length != weights.length) {
+            throw new InputSizeMissmatchException(weights.length, input.length);
+        }
         for (int i = 0; i < weights.length; i++) {
             weights[i] -= learningRate * delta * input[i];
         }
