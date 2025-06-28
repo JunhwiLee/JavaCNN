@@ -1,20 +1,20 @@
 package CNN;
 
 /**
- * 
+ * Neural Network for Classification
  */
 public class Classification implements Model{
 	
-	private Layer[] hiddenLayer;
-	private Layer outputLayer;
+	private final Layer[] hiddenLayers;
+	private final Layer outputLayer;
 	private final ActivationFunc activation;
 	
 	public Classification(int inputSize, int hiddenLayerCount, int[] hiddenLayerSizes, int outputLayerSize, ActivationFunc activation) {
 		this.activation = activation;
-		hiddenLayer = new Layer[hiddenLayerCount];
+		hiddenLayers = new Layer[hiddenLayerCount];
 		int prevSize = inputSize;
 		for (int i = 0; i < hiddenLayerCount; i++) {
-			hiddenLayer[i] = new Layer(prevSize, hiddenLayerSizes[i], activation);
+			hiddenLayers[i] = new Layer(prevSize, hiddenLayerSizes[i], activation);
 			prevSize = hiddenLayerSizes[i];
 		}
 		outputLayer = new Layer(prevSize, outputLayerSize, activation);
@@ -44,6 +44,14 @@ public class Classification implements Model{
 			probs[i] /= sum;
 		}
 		return probs;
+	}
+	
+	public double[] forword(double[] input) {
+		double[] out = input;
+		for(Layer hiddenLayer : hiddenLayers) {
+			out = hiddenLayer.activation(hiddenLayer.forward(out));
+		}
+		return softmax(outputLayer.forward(out));
 	}
 	
 	/**
@@ -83,9 +91,5 @@ public class Classification implements Model{
 		double ce = crossEntropy(probs, target);
 		double kl = klDivergence(probs, target);
 		return ce + kl;
-	}
-	
-	public static void main(String[] args) {
-		
 	}
 }
