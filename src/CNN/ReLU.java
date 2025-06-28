@@ -18,7 +18,7 @@ public class ReLU implements ActivationFunc {
 	public double[][] activate2D(double[][] x) {
 		double[][] out = new double[x.length][x[0].length];
 		for(int i = 0; i<x.length; i++) {
-			for(int j = 0; j<x[0].length; i++) {
+			for(int j = 0; j<x[0].length; j++) {
 				out[i][j] = Math.max(0.0, x[i][j]);				
 			}
 		}

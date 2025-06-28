@@ -49,12 +49,17 @@ public class Classification implements Model{
 		return probs;
 	}
 	
-	public double[] forword(double[] input) {
+	public double[] forward(double[] input) {
 		double[] out = input;
 		for(Layer hiddenLayer : hiddenLayers) {
 			out = hiddenLayer.activation(hiddenLayer.forward(out));
 		}
 		return softmax(outputLayer.forward(out));
+	}
+	
+	public double[] backward(double[] input) {
+		double[] out = input;
+		return out;
 	}
 	
 	/**
