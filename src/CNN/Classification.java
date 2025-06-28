@@ -10,6 +10,9 @@ public class Classification implements Model{
 	private final ActivationFunc activation;
 	
 	public Classification(int inputSize, int hiddenLayerCount, int[] hiddenLayerSizes, int outputLayerSize, ActivationFunc activation) {
+		if(hiddenLayerCount != hiddenLayerSizes.length) {
+			throw new LayerCountMissmatchException(hiddenLayerCount, hiddenLayerSizes.length);
+		}
 		this.activation = activation;
 		hiddenLayers = new Layer[hiddenLayerCount];
 		int prevSize = inputSize;
