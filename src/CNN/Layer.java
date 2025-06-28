@@ -1,7 +1,9 @@
 package CNN;
 
 /**
- * Represents a fully connected neural network layer.
+ * Represents a fully connected neural network layer that performs the
+ * linear transformation of its inputs. The activation function is applied
+ * separately using {@link #activation(double[])}.
  */
 public class Layer {
 	
@@ -23,13 +25,13 @@ public class Layer {
 		}
 	}
 	
-	/**
-	 * Executes a forward pass through the layer.
-	 *
-	 * @param input values from the previous layer
-	 * @return outputs of this layer
-	 */
-	public double[] forward(double[] input) {
+        /**
+         * Executes the linear forward pass through this layer.
+         *
+         * @param input values from the previous layer
+         * @return unactivated outputs of this layer
+         */
+        public double[] forward(double[] input) {
 		double[] out = new double[nodes.length];
 		for(int i = 0; i < nodes.length; i++) {
 			out[i] = nodes[i].forward(input);
@@ -37,13 +39,13 @@ public class Layer {
 		return out;
 	}
 	
-	/**
-	 * Executes a activation function through the layer.
-	 *
-	 * @param input values from the forwarded vector
-	 * @return activations of this layer
-	 */
-	public double[] activation(double[] input) {
+        /**
+         * Applies the configured activation function to each value.
+         *
+         * @param input raw outputs from {@link #forward(double[])}
+         * @return activated outputs of this layer
+         */
+        public double[] activation(double[] input) {
 		double[] out = new double[nodes.length];
 		for(int i = 0; i < nodes.length; i++) {
 			out[i] = activation.activate(input[i]);
@@ -51,15 +53,15 @@ public class Layer {
 		return out;
 	}
 	
-	/**
-	 * Backpropagates errors through this layer and updates its parameters.
-	 *
-	 * @param input        inputs that produced the outputs of this layer
-	 * @param gradOutput   gradient of the loss with respect to this layer's outputs
-	 * @param learningRate step size for gradient descent
-	 * @return gradient of the loss with respect to the layer inputs
-	 */
-	public double[] backward(double[] input, double[] gradOutput, double learningRate) {
+        /**
+         * Propagates errors backward through this layer and updates its parameters.
+         *
+         * @param input        inputs that produced the outputs of this layer
+         * @param gradOutput   gradient of the loss with respect to this layer's outputs
+         * @param learningRate step size for gradient descent
+         * @return gradient of the loss with respect to the layer inputs
+         */
+        public double[] backward(double[] input, double[] gradOutput, double learningRate) {
 		double[] gradInput = new double[nodes[0].inputSize()];
 		for(int i = 0; i < nodes.length; i++) {
 			double delta = gradOutput[i] * activation.derivative(nodes[i].getLastZ());
