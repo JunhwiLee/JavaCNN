@@ -42,7 +42,30 @@ public class Convolution2D {
 		return output;
 	}
 	
-	public double[][][] pooling(double[][][] input){
-		
-	}
+       public double[][][] pooling(double[][][] input){
+               int depth = input.length;
+               int height = input[0].length;
+               int width = input[0][0].length;
+
+               int kernel = padding + 1;
+               int outHeight = (height - kernel) / stride + 1;
+               int outWidth = (width - kernel) / stride + 1;
+               double[][][] out = new double[depth][outHeight][outWidth];
+
+               for(int d = 0; d < depth; d++) {
+                       for(int y = 0; y < outHeight; y++) {
+                               for(int x = 0; x < outWidth; x++) {
+                                       double sum = 0.0;
+                                       for(int i = 0; i < kernel; i++) {
+                                               for(int j = 0; j < kernel; j++) {
+                                                       sum += input[d][y * stride + i][x * stride + j];
+                                               }
+                                       }
+                                       out[d][y][x] = sum / (kernel * kernel);
+                               }
+                       }
+               }
+
+               return out;
+       }
 }
