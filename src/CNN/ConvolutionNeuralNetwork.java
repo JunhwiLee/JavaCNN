@@ -14,18 +14,52 @@ public class ConvolutionNeuralNetwork {
 		return model.forward(convolution.forward(input));
 	}
 	
-	//using Stochastic Gradient Descent
-	public void learning(double[][][][] trainingSet, double[] trainLabel, double[][][][] validationSet, int[] validLabel) {
-		double learningRate = 0.01;
-		double[][] predicted = new double[trainingSet.length][model.getOutputVectorSize()];
-		
-		while(true) { // repeat until validation set accuracy doesn't improve for specific time
-			for(int i = 0; i<trainingSet.length; i++) {
-				predicted[i] = estimate(trainingSet[i]);
-			}
-			
-			double loss = model.lossFunc(predicted, trainLabel);
-		}
-		
-	}
+        //using Stochastic Gradient Descent
+        public void learning(double[][][][] trainingSet, double[] trainLabel, double[][][][] validationSet, int[] validLabel) {
+                double[][] predicted = new double[trainingSet.length][model.getOutputVectorSize()];
+
+                int patience = 5;
+                int noImprove = 0;
+                double bestAcc = 0.0;
+
+                while (noImprove < patience) {
+                        for (int i = 0; i < trainingSet.length; i++) {
+                                double[] output = model.forward(convolution.forward(trainingSet[i]));
+                                predicted[i] = output;
+
+                                double[] target = new double[model.getOutputVectorSize()];
+                                if (target.length == 1) {
+                                        target[0] = trainLabel[i];
+                                } else {
+                                        int idx = (int) trainLabel[i];
+                                        if (idx >= 0 && idx < target.length) {
+                                                target[idx] = 1.0;
+                                        }
+                                }
+
+                                double[] grad = model.backward(target);
+                                convolution.backward(grad);
+                        }
+
+                        double loss = model.lossFunc(predicted, trainLabel);
+
+                        int correct = 0;
+                        for (int i = 0; i < validationSet.length; i++) {
+                                double[] out = estimate(validationSet[i]);
+                                int predLabel = 0;
+                                for (int j = 1; j < out.length; j++) {
+                                        if (out[j] > out[predLabel]) predLabel = j;
+                                }
+                                if (predLabel == validLabel[i]) correct++;
+                        }
+                        double acc = (double) correct / validationSet.length;
+                        if (acc > bestAcc) {
+                                bestAcc = acc;
+                                noImprove = 0;
+                        } else {
+                                noImprove++;
+                        }
+                }
+
+        }
 }

@@ -29,6 +29,19 @@ public class TrainDigits {
                 new ReLU());
 
         ConvolutionNeuralNetwork net = new ConvolutionNeuralNetwork(conv, model);
-        net.learning(data.images);
+
+        double[] labels = new double[data.labels.length];
+        int[] ilabels = new int[data.labels.length];
+        for (int i = 0; i < data.labels.length; i++) {
+            for (int j = 0; j < data.labels[i][0][0].length; j++) {
+                if (data.labels[i][0][0][j] == 1.0) {
+                    labels[i] = j;
+                    ilabels[i] = j;
+                    break;
+                }
+            }
+        }
+
+        net.learning(data.images, labels, data.images, ilabels);
     }
 }
