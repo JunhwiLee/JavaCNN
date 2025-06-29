@@ -96,5 +96,70 @@ public class Convolution2D {
 		return out;
 	}
 	
-	//TODO implement backward, poolingBackward, globalPoolingBackward
+	/**
+	 * Performs the backward pass through the convolution stack.
+	 *
+	 * @param gradOutput gradient with respect to the final pooled output
+	 * @return gradient with respect to the original input
+	 */
+	public double[][][] backward(double[] gradOutput) {
+		double learningRate = 0.01;
+		
+		// Gradient w.r.t. output of the last convolution layer
+		double[][][] grad = globalPoolingBackward(gradOutput);
+		
+		int last = convolutionLayers.length - 1;
+		grad = convolutionLayers[last].backward(lastInputs[last], grad, learningRate);
+		
+		for (int i = last - 1; i >= 0; i--) {
+			grad = poolingBackward(grad, lastActivations[i]);
+			grad = convolutionLayers[i].backward(lastInputs[i], grad, learningRate);
+		}
+		
+		return grad;
+	}
+	
+	private double[][][] poolingBackward(double[][][] grad, double[][][] beforePool) {
+		int depth = beforePool.length;
+		int height = beforePool[0].length;
+		int width = beforePool[0][0].length;
+		double[][][] gradInput = new double[depth][height][width];
+		int outHeight = grad[0].length;
+		int outWidth = grad[0][0].length;
+		
+		for (int d = 0; d < depth; d++) {
+			for (int y = 0; y < outHeight; y += stride) {
+				for (int x = 0; x < outWidth; x += stride) {
+					double delta = grad[d][y][x] / (kernel * kernel);
+					for (int i = 0; i < kernel; i++) {
+						for (int j = 0; j < kernel; j++) {
+							int inY = y + i;
+							int inX = x + j;
+							if (inY >= 0 && inY < height && inX >= 0 && inX < width) {
+								gradInput[d][inY][inX] += delta;
+							}
+						}
+					}
+				}
+			}
+		}
+		return gradInput;
+	}
+	
+	private double[][][] globalPoolingBackward(double[] grad) {
+		int depth = lastConvOutput.length;
+		int height = lastConvOutput[0].length;
+		int width = lastConvOutput[0][0].length;
+		double[][][] gradInput = new double[depth][height][width];
+		
+		for (int d = 0; d < depth && d < grad.length; d++) {
+			double delta = grad[d] / (height * width);
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					gradInput[d][y][x] = delta;
+				}
+			}
+		}
+		return gradInput;
+	}
 }

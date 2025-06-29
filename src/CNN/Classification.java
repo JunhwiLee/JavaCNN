@@ -105,41 +105,47 @@ public class Classification implements Model{
 		return ce / probs.length;
 	}
 	
-	private double klDivergence(double[][] probs, double[] target) {
+	/**
+	 * Computes KL divergence between the predicted distributions and
+	 * one-hot target distributions.
+	 */
+	private double klDivergence(double[][] probs, int[] target) {
 		double kl = 0.0;
-		for (int i = 0; i < probs.length; i++) {
-			for (int j = 0; j < probs[i].length && j < target.length; j++) {
+		int batchSize = probs.length;
+		int numClasses = probs[0].length;
+		for (int i = 0; i < batchSize; i++) {
+			for (int j = 0; j < numClasses; j++) {
 				double p = probs[i][j];
-				double q = target[j];
-				if (p <= 0.0 || q <= 0.0) {
-					continue;
+				if (p <= 0.0) {
+					continue;  // skip zero-probability
 				}
-				kl += p * Math.log(p / q);
+				// one-hot target: q = 1.0 if this is the true class, else 0.0
+				if (j != target[i]) {
+					continue;  // log(p/0) 방지
+				}
+				// q == 1 here
+				kl += p * Math.log(p / 1.0);  // = p * log(p)
 			}
 		}
-		return kl / probs.length;
+		return kl / batchSize;
 	}
 	
-	/**
-	 * Computes a combined loss consisting of cross entropy and KL divergence
-	 * for classification tasks.
-	 */
 	@Override
 	public double lossFunc(double[][] predicted, double[] target) {
+		// double[] target 을 int[] 로 변환
 		int[] label = new int[target.length];
-		for(int i = 0; i<target.length; i++) label[i] = (int)target[i];
+		for (int i = 0; i < target.length; i++) {
+			label[i] = (int) target[i];
+		}
 		return lossFunc(predicted, label);
 	}
 	
 	public double lossFunc(double[][] predicted, int[] target) {
-		int[] label = target;
-		double ce = crossEntropy(predicted, label);
-		// use uniform distribution for KL divergence regularization
-		double[] uniform = new double[predicted[0].length];
-		for (int i = 0; i < uniform.length; i++) {
-			uniform[i] = 1.0 / uniform.length;
-		}
-		double kl = klDivergence(predicted, uniform);
+		// 1) cross-entropy
+		double ce = crossEntropy(predicted, target);
+		// 2) one-hot KL divergence
+		double kl = klDivergence(predicted, target);
 		return ce + kl;
 	}
+	
 }

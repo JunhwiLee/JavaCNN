@@ -98,53 +98,53 @@ public class Convolution2DLayer {
 	 * Applies the configured activation function element-wise to the supplied
 	 * tensor.
 	 */
-        public double[][][] activation(double[][][] input) {
-                double[][][] out = new double[input.length][input[0].length][input[0][0].length];
-                for (int f = 0; f < input.length; f++) {
-                        out[f] = activation.activate2D(input[f]);
-                }
-                return out;
-        }
-
-        /**
-         * Backward pass for this convolution layer.
-         *
-         * @param input       input tensor used during the forward pass
-         * @param gradOutput  gradient with respect to the activated output
-         * @param lr          learning rate for parameter updates
-         * @return gradient with respect to the input tensor
-         */
-        public double[][][] backward(double[][][] input, double[][][] gradOutput, double lr) {
-                int depth = input.length;
-                int height = input[0].length;
-                int width = input[0][0].length;
-
-                int outHeight = gradOutput[0].length;
-                int outWidth = gradOutput[0][0].length;
-
-                double[][][] gradInput = new double[depth][height][width];
-
-                for (int f = 0; f < filters.length; f++) {
-                        double[][] actDeriv = activation.derivative2D(lastZ[f]);
-                        for (int y = 0; y < outHeight; y += stride) {
-                                for (int x = 0; x < outWidth; x += stride) {
-                                        double delta = gradOutput[f][y][x] * actDeriv[y][x];
-                                        biases[f] -= lr * delta;
-                                        for (int d = 0; d < depth; d++) {
-                                                for (int i = 0; i < kernel; i++) {
-                                                        for (int j = 0; j < kernel; j++) {
-                                                                int inY = y + i;
-                                                                int inX = x + j;
-                                                                if (inY >= 0 && inY < height && inX >= 0 && inX < width) {
-                                                                        gradInput[d][inY][inX] += filters[f][d][i][j] * delta;
-                                                                        filters[f][d][i][j] -= lr * input[d][inY][inX] * delta;
-                                                                }
-                                                        }
-                                                }
-                                        }
-                                }
-                        }
-                }
-                return gradInput;
-        }
+	public double[][][] activation(double[][][] input) {
+		double[][][] out = new double[input.length][input[0].length][input[0][0].length];
+		for (int f = 0; f < input.length; f++) {
+			out[f] = activation.activate2D(input[f]);
+		}
+		return out;
+	}
+	
+	/**
+	 * Backward pass for this convolution layer.
+	 *
+	 * @param input       input tensor used during the forward pass
+	 * @param gradOutput  gradient with respect to the activated output
+	 * @param lr          learning rate for parameter updates
+	 * @return gradient with respect to the input tensor
+	 */
+	public double[][][] backward(double[][][] input, double[][][] gradOutput, double lr) {
+		int depth = input.length;
+		int height = input[0].length;
+		int width = input[0][0].length;
+		
+		int outHeight = gradOutput[0].length;
+		int outWidth = gradOutput[0][0].length;
+		
+		double[][][] gradInput = new double[depth][height][width];
+		
+		for (int f = 0; f < filters.length; f++) {
+			double[][] actDeriv = activation.derivative2D(lastZ[f]);
+			for (int y = 0; y < outHeight; y += stride) {
+				for (int x = 0; x < outWidth; x += stride) {
+					double delta = gradOutput[f][y][x] * actDeriv[y][x];
+					biases[f] -= lr * delta;
+					for (int d = 0; d < depth; d++) {
+						for (int i = 0; i < kernel; i++) {
+							for (int j = 0; j < kernel; j++) {
+								int inY = y + i;
+								int inX = x + j;
+								if (inY >= 0 && inY < height && inX >= 0 && inX < width) {
+									gradInput[d][inY][inX] += filters[f][d][i][j] * delta;
+									filters[f][d][i][j] -= lr * input[d][inY][inX] * delta;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return gradInput;
+	}
 }
