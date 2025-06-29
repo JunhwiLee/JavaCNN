@@ -83,40 +83,54 @@ public class Classification implements Model{
 	 * Computes cross entropy between a predicted probability distribution and
 	 * the target distribution.
 	 */
-	private double crossEntropy(double[][] probs, int[] target) {
-		double ce = 0.0;
-		int index = 0;
-		double maxP = 0.0;
-		for (int i = 0; i < probs.length; i++) {
-			for(int j = 0; j<probs[0].length; j++) {
-				if(maxP < probs[i][j]) {
-					maxP = probs[i][j];
-					index = j;
-				}
-			}
-			
-			ce -= Math.log(maxP);			
-		}
-		return ce;
-	}
-	
-	private double klDivergence(double[][] probs, double[] target) {
-		return 0.0;
-	}
+        private double crossEntropy(double[][] probs, int[] target) {
+                double ce = 0.0;
+                for (int i = 0; i < probs.length; i++) {
+                        int lbl = target[i];
+                        double p = probs[i][lbl];
+                        if (p <= 0.0) {
+                                p = 1e-15; // avoid log(0)
+                        }
+                        ce -= Math.log(p);
+                }
+                return ce / probs.length;
+        }
+
+        private double klDivergence(double[][] probs, double[] target) {
+                double kl = 0.0;
+                for (int i = 0; i < probs.length; i++) {
+                        for (int j = 0; j < probs[i].length && j < target.length; j++) {
+                                double p = probs[i][j];
+                                double q = target[j];
+                                if (p <= 0.0 || q <= 0.0) {
+                                        continue;
+                                }
+                                kl += p * Math.log(p / q);
+                        }
+                }
+                return kl / probs.length;
+        }
 	
 	/**
 	 * Computes a combined loss consisting of cross entropy and KL divergence
 	 * for classification tasks.
 	 */
 	@Override
-	public double lossFunc(double[][] predicted, double[] target) {
-		int[] label = new int[target.length];
-		for(int i = 0; i<target.length; i++) label[i] = (int)target[i];
-		return 0.0;
-	}
+        public double lossFunc(double[][] predicted, double[] target) {
+                int[] label = new int[target.length];
+                for(int i = 0; i<target.length; i++) label[i] = (int)target[i];
+                return lossFunc(predicted, label);
+        }
 
-	public double lossFunc(double[][] predicted, int[] target) {
-		int[] label = target;
-		return 0.0;
-	}
+        public double lossFunc(double[][] predicted, int[] target) {
+                int[] label = target;
+                double ce = crossEntropy(predicted, label);
+                // use uniform distribution for KL divergence regularization
+                double[] uniform = new double[predicted[0].length];
+                for (int i = 0; i < uniform.length; i++) {
+                        uniform[i] = 1.0 / uniform.length;
+                }
+                double kl = klDivergence(predicted, uniform);
+                return ce + kl;
+        }
 }
