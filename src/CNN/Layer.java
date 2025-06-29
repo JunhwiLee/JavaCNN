@@ -25,6 +25,10 @@ public class Layer {
 		}
 	}
 	
+	public int getLayerSize() {
+		return nodes.length;
+	}
+	
 	/**
 	 * Executes the linear forward pass through this layer.
 	 *

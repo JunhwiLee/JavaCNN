@@ -14,7 +14,18 @@ public class ConvolutionNeuralNetwork {
 		return model.forward(convolution.forward(input));
 	}
 	
-	public void learning(double[][][][] trainingSet, int[] trainLabel, double[][][][] validationSet, int[] validLabel) {
+	//using Stochastic Gradient Descent
+	public void learning(double[][][][] trainingSet, double[] trainLabel, double[][][][] validationSet, int[] validLabel) {
 		double learningRate = 0.01;
+		double[][] predicted = new double[trainingSet.length][model.getOutputVectorSize()];
+		
+		while(true) { // repeat until validation set accuracy doesn't improve for specific time
+			for(int i = 0; i<trainingSet.length; i++) {
+				predicted[i] = estimate(trainingSet[i]);
+			}
+			
+			double loss = model.lossFunc(predicted, trainLabel);
+		}
+		
 	}
 }

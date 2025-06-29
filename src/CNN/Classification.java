@@ -28,6 +28,10 @@ public class Classification implements Model{
 		outputLayer = new Layer(prevSize, outputLayerSize, activation);
 	}
 	
+	public int getOutputVectorSize() {
+		return outputLayer.getLayerSize();
+	}
+	
 	/**
 	 * Applies the softmax function to the given logits.
 	 *

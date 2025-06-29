@@ -14,6 +14,7 @@ public interface Model {
 	 * @return computed loss
 	 */
 	public double lossFunc(double[][] predicted, double[] target);
+	public int getOutputVectorSize();
 	public double[] forward(double[] input);
 	public double[] backward(double[] input);
 }

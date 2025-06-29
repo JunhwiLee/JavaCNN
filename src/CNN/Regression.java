@@ -23,6 +23,10 @@ public class Regression implements Model {
 		outputLayer = new Layer(prevSize, outputLayerSize, activation);
 	}
 	
+	public int getOutputVectorSize() {
+		return outputLayer.getLayerSize();
+	}
+	
 	/**
 	 * Executes a forward pass through all layers of the network.
 	 *
