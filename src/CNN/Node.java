@@ -43,31 +43,31 @@ public class Node {
 		return sum;
 	}
 	
-        /**
-         * Backward pass for this node. Updates the weights and bias using
-         * the provided learning rate and returns the gradient with respect
-         * to the node inputs.
-         *
-         * @param input  the inputs that were used during the forward pass
-         * @param delta  gradient of the loss with respect to this node's output
-         * @param lr     learning rate for the weight update
-         * @return gradient with respect to the input vector
-         */
-        public double[] backward(double[] input, double delta, double lr) {
-                if (input.length != weights.length) {
-                        throw new InputSizeMissmatchException(weights.length, input.length);
-                }
-
-                double[] gradInput = new double[weights.length];
-
-                for (int i = 0; i < weights.length; i++) {
-                        gradInput[i] = weights[i] * delta;
-                        // SGD weight update
-                        weights[i] -= lr * delta * input[i];
-                }
-                bias -= lr * delta;
-                return gradInput;
-        }
+	/**
+	 * Backward pass for this node. Updates the weights and bias using
+	 * the provided learning rate and returns the gradient with respect
+	 * to the node inputs.
+	 *
+	 * @param input  the inputs that were used during the forward pass
+	 * @param delta  gradient of the loss with respect to this node's output
+	 * @param lr     learning rate for the weight update
+	 * @return gradient with respect to the input vector
+	 */
+	public double[] backward(double[] input, double delta, double lr) {
+		if (input.length != weights.length) {
+			throw new InputSizeMissmatchException(weights.length, input.length);
+		}
+		
+		double[] gradInput = new double[weights.length];
+		
+		for (int i = 0; i < weights.length; i++) {
+			gradInput[i] = weights[i] * delta;
+			// SGD weight update
+			weights[i] -= lr * delta * input[i];
+		}
+		bias -= lr * delta;
+		return gradInput;
+	}
 	
 	public double getLastZ() {
 		return lastZ;
@@ -81,4 +81,3 @@ public class Node {
 		return weights[index];
 	}
 }
-

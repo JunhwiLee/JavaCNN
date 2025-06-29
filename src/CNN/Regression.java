@@ -45,19 +45,19 @@ public class Regression implements Model {
 		return lastOutput;
 	}
 	
-        public double[] backward(double[] input) {
-                double learningRate = 0.01;
-                double[] delta = new double[lastOutput.length];
-                for(int i = 0; i < lastOutput.length; i++) {
-                        delta[i] = lastOutput[i] - input[i];
-                }
-
-                double[] grad = outputLayer.backward(layerInputs[hiddenLayer.length], delta, learningRate);
-                for(int i = hiddenLayer.length - 1; i >= 0; i--) {
-                        grad = hiddenLayer[i].backward(layerInputs[i], grad, learningRate);
-                }
-                return grad;
-        }
+	public double[] backward(double[] input) {
+		double learningRate = 0.01;
+		double[] delta = new double[lastOutput.length];
+		for(int i = 0; i < lastOutput.length; i++) {
+			delta[i] = lastOutput[i] - input[i];
+		}
+		
+		double[] grad = outputLayer.backward(layerInputs[hiddenLayer.length], delta, learningRate);
+		for(int i = hiddenLayer.length - 1; i >= 0; i--) {
+			grad = hiddenLayer[i].backward(layerInputs[i], grad, learningRate);
+		}
+		return grad;
+	}
 	
 	
 	/**
