@@ -36,12 +36,12 @@ public class ReLU implements ActivationFunc {
 	
 	@Override
 	public double[][] derivative2D(double[][] x){
-		double[][] out = new double[x.length][x[0].length];
-		for(int i = 0; i<x.length; i++) {
-			for(int j = 0; j<x[0].length; i++) {
-				out[i][j] = x[i][j] > 0.0 ? 1.0 : 0.0;			
-			}
-		}
-		return out;
-	}
+                double[][] out = new double[x.length][x[0].length];
+                for(int i = 0; i<x.length; i++) {
+                        for(int j = 0; j<x[0].length; j++) {
+                                out[i][j] = x[i][j] > 0.0 ? 1.0 : 0.0;
+                        }
+                }
+                return out;
+        }
 }

@@ -72,12 +72,21 @@ public class Classification implements Model{
 		return softmax(lastLogits);
 	}
 	
-	public double[] backward(double[] input) {
-		double[] out = input;
-		return out;
-	}
+        public double[] backward(double[] input) {
+                double learningRate = 0.01;
+                double[] probs = softmax(lastLogits);
+                double[] delta = new double[probs.length];
+                for(int i = 0; i < probs.length && i < input.length; i++) {
+                        delta[i] = probs[i] - input[i];
+                }
+
+                double[] grad = outputLayer.backward(layerInputs[hiddenLayers.length], delta, learningRate);
+                for(int i = hiddenLayers.length - 1; i >= 0; i--) {
+                        grad = hiddenLayers[i].backward(layerInputs[i], grad, learningRate);
+                }
+                return grad;
+        }
 	
-	//TODO implement backward
 	
 	/**
 	 * Computes cross entropy between a predicted probability distribution and
