@@ -147,5 +147,4 @@ public class Classification implements Model{
 		double kl = klDivergence(predicted, target);
 		return ce + kl;
 	}
-	
 }

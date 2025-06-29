@@ -43,5 +43,6 @@ public class TrainDigits {
         }
 
         net.learning(data.images, labels, data.images, ilabels);
+        System.out.println("Learning over");
     }
 }
