@@ -107,52 +107,5 @@ public class Convolution2DLayer {
 		return out;
 	}
 	
-	/**
-	 * Propagates gradients backward through this layer and updates the filter
-	 * weights and biases.
-	 *
-	 * @param input        inputs that produced the current outputs
-	 * @param gradOutput   gradient of the loss w.r.t. the layer outputs
-	 * @param learningRate step size for gradient descent
-	 * @return gradient of the loss w.r.t. the inputs
-	 */
-	public double[][][] backward(double[][][] input, double[][][] gradOutput, double learningRate) {
-		int depth = input.length;
-		int height = input[0].length;
-		int width = input[0][0].length;
-		
-		int outHeight = (height - kernel + padding + 1) / stride;
-		int outWidth = (width - kernel + padding + 1) / stride;
-		if (gradOutput.length != filters.length ||
-				gradOutput[0].length != outHeight ||
-				gradOutput[0][0].length != outWidth) {
-			throw new InputSizeMissmatchException();
-		}
-		
-		double[][][] gradInput = new double[depth][height][width];
-		
-		for(int f = 0; f < filters.length; f++) {
-			for(int y = 0; y < outHeight; y += stride) {
-				double[] activate = activation.derivative(lastZ[f][y]);
-				for(int x = 0; x < outWidth; x += stride) {
-					double delta = gradOutput[f][y][x] * activate[x];
-					
-					for(int d = 0; d < depth; d++) {
-						for(int i = 0; i < kernel; i++) {
-							for(int j = 0; j < kernel; j++) {
-								int inY = y + i;
-								int inX = x + j;
-								if (inY >= 0 && inY < height && inX >= 0 && inX < width) {
-									gradInput[d][inY][inX] += delta * filters[f][d][i][j];
-									filters[f][d][i][j] -= learningRate * delta * input[d][inY][inX];
-								}
-							}
-						}
-					}
-					biases[f] -= learningRate * delta;
-				}
-			}
-		}
-		return gradInput;
-	}
+	//TODO implement backward
 }

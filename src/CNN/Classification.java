@@ -4,15 +4,15 @@ package CNN;
  * Neural Network for Classification
  */
 public class Classification implements Model{
-
-        private final Layer[] hiddenLayers;
-        private final Layer outputLayer;
-        private final ActivationFunc activation;
-
-        // Store inputs to each layer during the forward pass for backprop
-        private double[][] layerInputs;
-        // Store raw logits of the output layer
-        private double[] lastLogits;
+	
+	private final Layer[] hiddenLayers;
+	private final Layer outputLayer;
+	private final ActivationFunc activation;
+	
+	// Store inputs to each layer during the forward pass for backprop
+	private double[][] layerInputs;
+	// Store raw logits of the output layer
+	private double[] lastLogits;
 	
 	public Classification(int inputSize, int hiddenLayerCount, int[] hiddenLayerSizes, int outputLayerSize, ActivationFunc activation) {
 		if(hiddenLayerCount != hiddenLayerSizes.length) {
@@ -54,45 +54,26 @@ public class Classification implements Model{
 		return probs;
 	}
 	
-        public double[] forward(double[] input) {
-                double[] out = input;
-                // Prepare storage for backprop inputs
-                layerInputs = new double[hiddenLayers.length + 1][];
-                layerInputs[0] = input;
-
-                for (int i = 0; i < hiddenLayers.length; i++) {
-                        out = hiddenLayers[i].activation(hiddenLayers[i].forward(out));
-                        layerInputs[i + 1] = out;
-                }
-                lastLogits = outputLayer.forward(out);
-                return softmax(lastLogits);
-        }
+	public double[] forward(double[] input) {
+		double[] out = input;
+		// Prepare storage for backprop inputs
+		layerInputs = new double[hiddenLayers.length + 1][];
+		layerInputs[0] = input;
+		
+		for (int i = 0; i < hiddenLayers.length; i++) {
+			out = hiddenLayers[i].activation(hiddenLayers[i].forward(out));
+			layerInputs[i + 1] = out;
+		}
+		lastLogits = outputLayer.forward(out);
+		return softmax(lastLogits);
+	}
 	
-        public double[] backward(double[] input) {
-                double[] out = input;
-                return out;
-        }
-
-        /**
-         * Backpropagation using cross entropy loss with softmax.
-         *
-         * @param target expected one-hot encoded vector
-         * @param learningRate step size for gradient descent
-         * @return gradient with respect to the model input
-         */
-        public double[] backward(double[] target, double learningRate) {
-                double[] probs = softmax(lastLogits);
-                double[] grad = new double[probs.length];
-                for(int i = 0; i < grad.length; i++) {
-                        grad[i] = probs[i] - target[i];
-                }
-
-                double[] gradInput = outputLayer.backward(layerInputs[hiddenLayers.length], grad, learningRate);
-                for(int i = hiddenLayers.length - 1; i >= 0; i--) {
-                        gradInput = hiddenLayers[i].backward(layerInputs[i], gradInput, learningRate);
-                }
-                return gradInput;
-        }
+	public double[] backward(double[] input) {
+		double[] out = input;
+		return out;
+	}
+	
+	//TODO implement backward
 	
 	/**
 	 * Computes cross entropy between a predicted probability distribution and
@@ -115,13 +96,8 @@ public class Classification implements Model{
 		return ce;
 	}
 	
-	/**
-	 * Computes the Kullback–Leibler divergence between two probability
-	 * distributions.
-	 */
-	private double klDivergence(double[] probs, double[] target) {
-		double kl = 0.0;
-		return kl;
+	private double klDivergence(double[][] probs, double[] target) {
+		return 0.0;
 	}
 	
 	/**
@@ -129,7 +105,14 @@ public class Classification implements Model{
 	 * for classification tasks.
 	 */
 	@Override
-	public double lossFunc(double[] predicted, int[] target) {
+	public double lossFunc(double[][] predicted, double[] target) {
+		int[] label = new int[target.length];
+		for(int i = 0; i<target.length; i++) label[i] = (int)target[i];
+		return 0.0;
+	}
+
+	public double lossFunc(double[][] predicted, int[] target) {
+		int[] label = target;
 		return 0.0;
 	}
 }

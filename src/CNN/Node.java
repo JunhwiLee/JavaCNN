@@ -43,22 +43,7 @@ public class Node {
 		return sum;
 	}
 	
-	/**
-	 * Performs a simple weight update using the provided delta.
-	 *
-	 * @param input        the input vector that produced this node's output
-	 * @param delta        gradient of the loss with respect to this node's pre-activation value
-	 * @param learningRate step size for gradient descent
-	 */
-	public void backward(double[] input, double delta, double learningRate) {
-		if (input.length != weights.length) {
-			throw new InputSizeMissmatchException(weights.length, input.length);
-		}
-		for (int i = 0; i < weights.length; i++) {
-			weights[i] -= learningRate * delta * input[i];
-		}
-		bias -= learningRate * delta;
-	}
+	//TODO implement backward
 	
 	public double getLastZ() {
 		return lastZ;

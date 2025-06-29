@@ -45,26 +45,16 @@ public class Regression implements Model {
 		return new double[1];
 	}
 	
-	public double[] backward(double[] target, double learningRate) {
-		double[] grad = new double[lastOutput.length];
-		for(int i = 0; i < grad.length; i++) {
-			grad[i] = 2.0 * (lastOutput[i] - target[i]) / grad.length;
-		}
-		double[] gradInput = outputLayer.backward(layerInputs[hiddenLayer.length], grad, learningRate);
-		for(int i = hiddenLayer.length - 1; i >= 0; i--) {
-			gradInput = hiddenLayer[i].backward(layerInputs[i], gradInput, learningRate);
-		}
-		return gradInput;
-	}
+	//TODO implement backward
 	
 	/**
 	 * Computes the mean squared error between predicted and target values.
 	 */
 	@Override
-	public double lossFunc(double[] predicted, double[] target) {
+	public double lossFunc(double[][] predicted, double[] target) {
 		double sum = 0.0;
 		for (int i = 0; i < predicted.length; i++) {
-			double diff = predicted[i] - target[i];
+			double diff = predicted[i][0] - target[i];
 			sum += diff * diff;
 		}
 		return sum / predicted.length;

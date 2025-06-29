@@ -51,29 +51,6 @@ public class Layer {
 		return out;
 	}
 	
-	/**
-	 * Propagates errors backward through this layer and updates its parameters.
-	 *
-	 * @param input        inputs that produced the outputs of this layer
-	 * @param gradOutput   gradient of the loss with respect to this layer's outputs
-	 * @param learningRate step size for gradient descent
-	 * @return gradient of the loss with respect to the layer inputs
-	 */
-	public double[] backward(double[] input, double[] gradOutput, double learningRate) {
-		double[] gradInput = new double[nodes[0].inputSize()];
-		double[] LastZs = new double[nodes.length];
-		for(int i = 0; i<nodes.length; i++) {
-			LastZs[i] = nodes[i].getLastZ();
-		}
-		double[] activate = activation.derivative(LastZs);
-		for(int i = 0; i < nodes.length; i++) {
-			double delta = gradOutput[i] * activate[i];
-			nodes[i].backward(input, delta, learningRate);
-			for(int j = 0; j < gradInput.length; j++) {
-				gradInput[j] += delta * nodes[i].getWeight(j);
-			}
-		}
-		return gradInput;
-	}
+	//TODO implement backward
 }
 
