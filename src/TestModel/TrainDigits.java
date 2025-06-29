@@ -29,6 +29,6 @@ public class TrainDigits {
                 new ReLU());
 
         ConvolutionNeuralNetwork net = new ConvolutionNeuralNetwork(conv, model);
-        net.learning(data.images, data.labels);
+        net.learning(data.images);
     }
 }

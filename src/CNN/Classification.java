@@ -98,11 +98,19 @@ public class Classification implements Model{
 	 * Computes cross entropy between a predicted probability distribution and
 	 * the target distribution.
 	 */
-	private double crossEntropy(double[] probs, double[] target) {
+	private double crossEntropy(double[][] probs, int[] target) {
 		double ce = 0.0;
+		int index = 0;
+		double maxP = 0.0;
 		for (int i = 0; i < probs.length; i++) {
-			double p = Math.max(Math.min(probs[i], 1.0 - 1e-15), 1e-15);
-			ce -= target[i] * Math.log(p);
+			for(int j = 0; j<probs[0].length; j++) {
+				if(maxP < probs[i][j]) {
+					maxP = probs[i][j];
+					index = j;
+				}
+			}
+			
+			ce -= Math.log(maxP);			
 		}
 		return ce;
 	}
@@ -113,11 +121,6 @@ public class Classification implements Model{
 	 */
 	private double klDivergence(double[] probs, double[] target) {
 		double kl = 0.0;
-		for (int i = 0; i < probs.length; i++) {
-			double t = Math.max(Math.min(target[i], 1.0 - 1e-15), 1e-15);
-			double p = Math.max(Math.min(probs[i], 1.0 - 1e-15), 1e-15);
-			kl += t * Math.log(t / p);
-		}
 		return kl;
 	}
 	
@@ -126,10 +129,7 @@ public class Classification implements Model{
 	 * for classification tasks.
 	 */
 	@Override
-	public double lossFunc(double[] predicted, double[] target) {
-		double[] probs = softmax(predicted);
-		double ce = crossEntropy(probs, target);
-		double kl = klDivergence(probs, target);
-		return ce + kl;
+	public double lossFunc(double[] predicted, int[] target) {
+		return 0.0;
 	}
 }
