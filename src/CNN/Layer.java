@@ -55,6 +55,39 @@ public class Layer {
 		return out;
 	}
 	
-	//TODO implement backward
+        /**
+         * Backward pass for the layer.
+         *
+         * @param input       the input vector that was fed to this layer in the forward pass
+         * @param gradOutput  gradient with respect to the activated output of this layer
+         * @param lr          learning rate used for parameter updates
+         * @return gradient with respect to the input vector
+         */
+        public double[] backward(double[] input, double[] gradOutput, double lr) {
+                if (gradOutput.length != nodes.length) {
+                        throw new InputSizeMissmatchException(nodes.length, gradOutput.length);
+                }
+
+                // Compute derivative of activation for each node
+                double[] z = new double[nodes.length];
+                for (int i = 0; i < nodes.length; i++) {
+                        z[i] = nodes[i].getLastZ();
+                }
+                double[] actDeriv = activation.derivative(z);
+
+                double[] delta = new double[nodes.length];
+                for (int i = 0; i < nodes.length; i++) {
+                        delta[i] = gradOutput[i] * actDeriv[i];
+                }
+
+                double[] gradInput = new double[input.length];
+                for (int i = 0; i < nodes.length; i++) {
+                        double[] nodeGrad = nodes[i].backward(input, delta[i], lr);
+                        for (int j = 0; j < gradInput.length; j++) {
+                                gradInput[j] += nodeGrad[j];
+                        }
+                }
+                return gradInput;
+        }
 }
 
