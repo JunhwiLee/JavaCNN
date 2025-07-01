@@ -5,10 +5,12 @@ package CNN;
  */
 public class Classification implements Model{
 	
-	private final Layer[] hiddenLayers;
-	private final Layer outputLayer;
-	private final ActivationFunc activation;
-	private final int batch;
+        private final Layer[] hiddenLayers;
+        private final Layer outputLayer;
+        private final ActivationFunc activation;
+        private final int batch;
+        private double[][] layerInputs;
+        private double[] lastOutput;
 		
 	public Classification(int inputSize, int hiddenLayerCount, int[] hiddenLayerSizes, int outputLayerSize, ActivationFunc activation, int batch) {
 		if(hiddenLayerCount != hiddenLayerSizes.length) {
@@ -59,13 +61,25 @@ public class Classification implements Model{
 		return probs;
 	}
 	
-	public double[] estimate(double[] input) {
-		double[] out = input;		
-		for (int i = 0; i < hiddenLayers.length; i++) {
-			out = hiddenLayers[i].activation(hiddenLayers[i].estimate(out));
-		}
-		return softmax(outputLayer.estimate(out));
-	}
+        public double[] estimate(double[] input) {
+                double[] out = input;
+                for (int i = 0; i < hiddenLayers.length; i++) {
+                        out = hiddenLayers[i].activation(hiddenLayers[i].estimate(out));
+                }
+                return softmax(outputLayer.estimate(out));
+        }
+
+        public double[] forward(double[] input) {
+                double[] out = input;
+                layerInputs = new double[hiddenLayers.length + 1][];
+                layerInputs[0] = input;
+                for (int i = 0; i < hiddenLayers.length; i++) {
+                        out = hiddenLayers[i].activation(hiddenLayers[i].estimate(out));
+                        layerInputs[i + 1] = out;
+                }
+                lastOutput = softmax(outputLayer.estimate(out));
+                return lastOutput;
+        }
 	
 	public double[][] forward(double[][] input) {
 		double[][] out = input;
@@ -75,9 +89,19 @@ public class Classification implements Model{
 		return outputLayer.forward(out);
 	}
 	
-	public double[] backward(double[] input) {
-		return new double[0];
-	}
+        public double[] backward(double[] input) {
+                double learningRate = 0.01;
+                double[] delta = new double[lastOutput.length];
+                for (int i = 0; i < lastOutput.length; i++) {
+                        delta[i] = lastOutput[i] - input[i];
+                }
+
+                double[] grad = outputLayer.backward(layerInputs[hiddenLayers.length], delta, learningRate);
+                for (int i = hiddenLayers.length - 1; i >= 0; i--) {
+                        grad = hiddenLayers[i].backward(layerInputs[i], grad, learningRate);
+                }
+                return grad;
+        }
 	
 	
 	public static double[][] ceDerivative(double[][] predictions, int[] targets) {
