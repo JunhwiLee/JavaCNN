@@ -9,6 +9,9 @@ public class Layer {
 	
 	private final Node[] nodes;
 	private final ActivationFunc activation;
+	private final int batch;
+	
+	private double[][] lastZs;
 	
 	/**
 	 * Creates a layer with the given number of nodes.
@@ -17,16 +20,22 @@ public class Layer {
 	 * @param nodeCount  number of nodes in this layer
 	 * @param activation activation function to apply
 	 */
-	public Layer(int inputSize, int nodeCount, ActivationFunc activation) {
+	public Layer(int inputSize, int nodeCount, ActivationFunc activation, int batch) {
 		this.activation = activation;
 		this.nodes = new Node[nodeCount];
+		lastZs = new double[batch][nodeCount];
+		this.batch = batch;
 		for(int i = 0; i < nodeCount; i++) {
-			nodes[i] = new Node(inputSize);
+			nodes[i] = new Node(inputSize, batch);
 		}
 	}
 	
 	public int getLayerSize() {
 		return nodes.length;
+	}
+	
+	public double[][] getLastZ() {
+		return lastZs;
 	}
 	
 	/**
@@ -35,11 +44,23 @@ public class Layer {
 	 * @param input values from the previous layer
 	 * @return unactivated outputs of this layer
 	 */
-	public double[] forward(double[] input) {
+	
+	public double[] estimate(double[] input) {
 		double[] out = new double[nodes.length];
 		for(int i = 0; i < nodes.length; i++) {
-			out[i] = nodes[i].forward(input);
+			out[i] = nodes[i].estimate(input);
 		}
+		return out;
+	}
+	
+	public double[][] forward(double[][] input) {
+		double[][] out = new double[batch][nodes.length];
+		
+		for(int b = 0; b<batch; b++) {
+			out[b] = estimate(input[b]);
+		}
+		
+		lastZs = out;
 		return out;
 	}
 	
@@ -64,29 +85,6 @@ public class Layer {
 	 * @return gradient with respect to the input vector
 	 */
 	public double[] backward(double[] input, double[] gradOutput, double lr) {
-		if (gradOutput.length != nodes.length) {
-			throw new InputSizeMissmatchException(nodes.length, gradOutput.length);
-		}
-		
-		// Compute derivative of activation for each node
-		double[] z = new double[nodes.length];
-		for (int i = 0; i < nodes.length; i++) {
-			z[i] = nodes[i].getLastZ();
-		}
-		double[] actDeriv = activation.derivative(z);
-		
-		double[] delta = new double[nodes.length];
-		for (int i = 0; i < nodes.length; i++) {
-			delta[i] = gradOutput[i] * actDeriv[i];
-		}
-		
-		double[] gradInput = new double[input.length];
-		for (int i = 0; i < nodes.length; i++) {
-			double[] nodeGrad = nodes[i].backward(input, delta[i], lr);
-			for (int j = 0; j < gradInput.length; j++) {
-				gradInput[j] += nodeGrad[j];
-			}
-		}
-		return gradInput;
+		return new double[0];
 	}
 }

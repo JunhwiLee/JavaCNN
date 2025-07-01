@@ -19,14 +19,14 @@ public class TrainDigits {
                 3,
                 new int[]{1, 1, 1},
                 2,
-                new ReLU());
+                new ReLU(), 16);
 
         Classification model = new Classification(
                 32,
                 2,
                 new int[]{32, 16},
                 10,
-                new ReLU());
+                new ReLU(), 16);
 
         ConvolutionNeuralNetwork net = new ConvolutionNeuralNetwork(conv, model);
 
@@ -42,7 +42,7 @@ public class TrainDigits {
             }
         }
 
-        net.learning(data.images, labels, data.images, ilabels);
+        net.learning(data.images, labels, data.images, ilabels, 32);
         System.out.println("Learning over");
     }
 }

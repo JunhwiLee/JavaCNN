@@ -7,9 +7,10 @@ import java.util.Random;
  */
 public class Node {
 	
-	private final double[] weights;
+	private double[] weights;
 	private double bias;
-	private double lastZ; // weighted sum before activation
+	private double[] lastZ; // weighted sum before activation
+	private final int batch;
 	
 	/**
 	 * Creates a node with weights initialized randomly using a small
@@ -17,8 +18,9 @@ public class Node {
 	 *
 	 * @param inputSize number of inputs that connect to this node
 	 */
-	public Node(int inputSize) {
+	public Node(int inputSize, int batch) {
 		this.weights = new double[inputSize];
+		this.batch = batch;
 		Random rnd = new Random();
 		for (int i = 0; i < inputSize; i++) {
 			// small random initial weights
@@ -27,11 +29,7 @@ public class Node {
 		this.bias = 0.0;
 	}
 	
-	/**
-	 * Forward pass for the node. Returns the weighted sum before activation
-	 * and stores it for use during backpropagation.
-	 */
-	public double forward(double[] input) {
+	public double estimate(double[] input) {
 		if (input.length != weights.length) {
 			throw new InputSizeMissmatchException(weights.length, input.length);
 		}
@@ -39,8 +37,22 @@ public class Node {
 		for (int i = 0; i < weights.length; i++) {
 			sum += weights[i] * input[i];
 		}
-		lastZ = sum;
 		return sum;
+	}
+	
+	/**
+	 * Forward pass for the node. Returns the weighted sum before activation
+	 * and stores it for use during backpropagation.
+	 */
+	public double[] forward(double[][] input) {
+		if (input.length != weights.length) {
+			throw new InputSizeMissmatchException(weights.length, input.length);
+		}
+		
+		for(int b = 0; b < batch; b++) {
+			lastZ[b] = estimate(input[b]);
+		}
+		return lastZ;
 	}
 	
 	/**
@@ -63,13 +75,14 @@ public class Node {
 		for (int i = 0; i < weights.length; i++) {
 			gradInput[i] = weights[i] * delta;
 			// SGD weight update
+			//System.out.println("Parameter Update");
 			weights[i] -= lr * delta * input[i];
 		}
 		bias -= lr * delta;
 		return gradInput;
 	}
 	
-	public double getLastZ() {
+	public double[] getLastZ() {
 		return lastZ;
 	}
 	

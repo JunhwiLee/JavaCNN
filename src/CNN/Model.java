@@ -13,8 +13,11 @@ public interface Model {
 	 * @param target    the ground truth values
 	 * @return computed loss
 	 */
+	public double[] estimate(double[] input);
 	public double lossFunc(double[][] predicted, double[] target);
+	public double lossDerivative(double[][] predicted, double[] target);
 	public int getOutputVectorSize();
-	public double[] forward(double[] input);
+	public int getBatch();
+	public double[][] forward(double[][] input);
 	public double[] backward(double[] input);
 }

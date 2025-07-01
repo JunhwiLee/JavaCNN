@@ -3,19 +3,20 @@ package CNN;
 public class Convolution2D {
 	private final Convolution2DLayer[] convolutionLayers;
 	private final ActivationFunc activation;
-	private final int kernel, stride;
+	private final int kernel, stride, batch;
 	
 	private double[][][][] lastInputs;
 	private double[][][][] lastActivations;
 	private double[][][] lastConvOutput;
 	
 	public Convolution2D(int layerCount, int[] layerSizes, int outputVectorSize,
-			int kernel, int[] strides, int stride, ActivationFunc activation) {
+			int kernel, int[] strides, int stride, ActivationFunc activation, int batch) {
 		if(layerCount != layerSizes.length ||
 				layerCount != strides.length
 				) {
 			throw new LayerCountMissmatchException(layerCount, layerSizes.length);
 		}
+		this.batch = batch;
 		this.activation = activation;
 		this.kernel = kernel;
 		this.stride = stride;
@@ -44,6 +45,10 @@ public class Convolution2D {
 		out = convolutionLayers[convolutionLayers.length - 1].forward(out);
 		lastConvOutput = out;
 		return globalPooling(out);
+	}
+	
+	public int getBatch() {
+		return batch;
 	}
 	
 	public double[][][] pooling(double[][][] input){

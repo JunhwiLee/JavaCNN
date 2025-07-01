@@ -14,8 +14,8 @@ public class ConvolutionNeuralNetwork {
 		return model.forward(convolution.forward(input));
 	}
 	
-	//using Stochastic Gradient Descent
-	public void learning(double[][][][] trainingSet, double[] trainLabel, double[][][][] validationSet, int[] validLabel) {
+	//using mini-batch Gradient Descent
+	public void learning(double[][][][] trainingSet, double[] trainLabel, double[][][][] validationSet, int[] validLabel, int batch) {
 		double[][] predicted = new double[trainingSet.length][model.getOutputVectorSize()];
 		
 		int patience = 5;
@@ -27,7 +27,7 @@ public class ConvolutionNeuralNetwork {
 		while (noImprove < patience) {
 			cnt++;
 			System.out.printf("Repeat %d: ", cnt);
-			for (int i = 0; i < trainingSet.length; i++) {
+			for (int i = 0; i < trainingSet.length; i ++) {
 				double[] output = model.forward(convolution.forward(trainingSet[i]));
 				predicted[i] = output;
 				

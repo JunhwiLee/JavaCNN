@@ -14,11 +14,11 @@ public class Convolution2DLayer {
 	private final ActivationFunc activation;
 	
 	// Stores the pre-activation outputs of the last forward pass
-	private double[][][] lastZ;
+	private double[][][][] lastZ;
 	
 	private final int kernel;
 	private final int padding;
-	private final int stride;
+	private final int stride, batch;
 	
 	/**
 	 * Creates a convolution layer with randomly initialized filters.
@@ -32,9 +32,10 @@ public class Convolution2DLayer {
 	 */
 	public Convolution2DLayer(int inputDepth, int filterCount, int kernel,
 			int padding, int stride,
-			ActivationFunc activation) {
+			ActivationFunc activation, int batch) {
 		this.activation = activation;
 		this.kernel = kernel;
+		this.batch = batch;
 		this.padding = padding;
 		this.stride = stride;
 		this.filters = new double[filterCount][inputDepth][kernel][kernel];
@@ -53,6 +54,10 @@ public class Convolution2DLayer {
 		}
 	}
 	
+	public double[][][][] getLastZ(){
+		return lastZ;
+	}
+	
 	/**
 	 * Executes the convolution operation without applying the activation
 	 * function. The result of this method should typically be passed to
@@ -61,7 +66,7 @@ public class Convolution2DLayer {
 	 * @param input 3D input tensor indexed as [channel][y][x]
 	 * @return raw convolution outputs
 	 */
-	public double[][][] forward(double[][][] input) {
+	public double[][][] estimate(double[][][] input) {
 		int depth = input.length;
 		int height = input[0].length;
 		int width = input[0][0].length;
@@ -69,7 +74,6 @@ public class Convolution2DLayer {
 		int outHeight = (height - kernel + padding + 1) / stride;
 		int outWidth = (width - kernel + padding + 1) / stride;
 		double[][][] out = new double[filters.length][outHeight][outWidth];
-		lastZ = new double[filters.length][outHeight][outWidth];
 		
 		for (int f = 0; f < filters.length; f++) {
 			for (int y = 0; y < outHeight; y += stride) {
@@ -87,11 +91,26 @@ public class Convolution2DLayer {
 						}
 					}
 					out[f][y][x] = sum;
-					lastZ[f][y][x] = sum;
 				}
 			}
 		}
 		return out;
+	}
+	
+	public double[][][][] forward(double[][][][] input) {
+		int depth = input.length;
+		int height = input[0].length;
+		int width = input[0][0].length;
+		
+		int outHeight = (height - kernel + padding + 1) / stride;
+		int outWidth = (width - kernel + padding + 1) / stride;
+		lastZ = new double[batch][filters.length][outHeight][outWidth];
+		
+		for(int b = 0; b<batch; b++) {
+			lastZ[b] = estimate(input[b]);
+		}
+		
+		return lastZ;
 	}
 	
 	/**
@@ -119,32 +138,8 @@ public class Convolution2DLayer {
 		int height = input[0].length;
 		int width = input[0][0].length;
 		
-		int outHeight = gradOutput[0].length;
-		int outWidth = gradOutput[0][0].length;
-		
 		double[][][] gradInput = new double[depth][height][width];
 		
-		for (int f = 0; f < filters.length; f++) {
-			double[][] actDeriv = activation.derivative2D(lastZ[f]);
-			for (int y = 0; y < outHeight; y += stride) {
-				for (int x = 0; x < outWidth; x += stride) {
-					double delta = gradOutput[f][y][x] * actDeriv[y][x];
-					biases[f] -= lr * delta;
-					for (int d = 0; d < depth; d++) {
-						for (int i = 0; i < kernel; i++) {
-							for (int j = 0; j < kernel; j++) {
-								int inY = y + i;
-								int inX = x + j;
-								if (inY >= 0 && inY < height && inX >= 0 && inX < width) {
-									gradInput[d][inY][inX] += filters[f][d][i][j] * delta;
-									filters[f][d][i][j] -= lr * input[d][inY][inX] * delta;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
 		return gradInput;
 	}
 }
