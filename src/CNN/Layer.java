@@ -84,7 +84,25 @@ public class Layer {
 	 * @param lr          learning rate used for parameter updates
 	 * @return gradient with respect to the input vector
 	 */
-	public double[] backward(double[] input, double[] gradOutput, double lr) {
-		return new double[0];
-	}
+        public double[] backward(double[] input, double[] gradOutput, double lr) {
+                if (gradOutput.length != nodes.length) {
+                        throw new InputSizeMissmatchException(nodes.length, gradOutput.length);
+                }
+
+                double[] gradInput = new double[input.length];
+                double[] actDeriv = activation.derivative(lastZs[0]);
+
+                for (int n = 0; n < nodes.length; n++) {
+                        double delta = gradOutput[n];
+                        if (actDeriv.length > n) {
+                                delta *= actDeriv[n];
+                        }
+                        double[] nodeGrad = nodes[n].backward(input, delta, lr);
+                        for (int i = 0; i < gradInput.length; i++) {
+                                gradInput[i] += nodeGrad[i];
+                        }
+                }
+
+                return gradInput;
+        }
 }

@@ -7,10 +7,10 @@ import java.util.Random;
  */
 public class Node {
 	
-	private double[] weights;
-	private double bias;
-	private double[] lastZ; // weighted sum before activation
-	private final int batch;
+        private double[] weights;
+        private double bias;
+        private double[] lastZ; // weighted sum before activation
+        private final int batch;
 	
 	/**
 	 * Creates a node with weights initialized randomly using a small
@@ -18,10 +18,11 @@ public class Node {
 	 *
 	 * @param inputSize number of inputs that connect to this node
 	 */
-	public Node(int inputSize, int batch) {
-		this.weights = new double[inputSize];
-		this.batch = batch;
-		Random rnd = new Random();
+        public Node(int inputSize, int batch) {
+                this.weights = new double[inputSize];
+                this.batch = batch;
+                this.lastZ = new double[batch];
+                Random rnd = new Random();
 		for (int i = 0; i < inputSize; i++) {
 			// small random initial weights
 			this.weights[i] = rnd.nextGaussian() * 0.01;
@@ -44,16 +45,18 @@ public class Node {
 	 * Forward pass for the node. Returns the weighted sum before activation
 	 * and stores it for use during backpropagation.
 	 */
-	public double[] forward(double[][] input) {
-		if (input.length != weights.length) {
-			throw new InputSizeMissmatchException(weights.length, input.length);
-		}
-		
-		for(int b = 0; b < batch; b++) {
-			lastZ[b] = estimate(input[b]);
-		}
-		return lastZ;
-	}
+        public double[] forward(double[][] input) {
+                if (input.length != batch) {
+                        throw new BatchSizeMissmatchException(batch, input.length);
+                }
+                for (int b = 0; b < batch; b++) {
+                        if (input[b].length != weights.length) {
+                                throw new InputSizeMissmatchException(weights.length, input[b].length);
+                        }
+                        lastZ[b] = estimate(input[b]);
+                }
+                return lastZ;
+        }
 	
 	/**
 	 * Backward pass for this node. Updates the weights and bias using
